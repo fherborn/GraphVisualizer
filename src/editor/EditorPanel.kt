@@ -83,7 +83,7 @@ class EditorPanel : JPanel(), MouseListener, MouseMotionListener {
     private fun generateGraph() {
         resetGraph()
         val nodeSize = Node.defaultSize
-        val offset = 20
+        val offset = 50
         val topSpace = 30
         val random = Random()
 
