@@ -4,7 +4,7 @@ import data.NodeType
 import pathfinder.BasicPathFinder
 import pathfinder.NodePack
 
-class AStarAlgorithm: BasicPathFinder<AStarAlgorithm.NodeInfo>() {
+class AStarAlgorithm : BasicPathFinder<AStarAlgorithm.NodeInfo>() {
 
     class NodeInfo(
             override val node: Node,
@@ -13,7 +13,7 @@ class AStarAlgorithm: BasicPathFinder<AStarAlgorithm.NodeInfo>() {
             var h: Double = 0.0,
             var f: Double = 0.0,
             var parent: NodeInfo? = null
-    ): NodePack
+    ) : NodePack
 
     override fun onStart(startNode: Node, endNode: Node) {
         oList.add(NodeInfo(startNode, null))
@@ -26,7 +26,7 @@ class AStarAlgorithm: BasicPathFinder<AStarAlgorithm.NodeInfo>() {
     }
 
     override fun onStep(startNode: Node, endNode: Node, stepped: Boolean, stepTime: Int) {
-        if(oList.isEmpty()) return finished(null)
+        if (oList.isEmpty()) return finished(null)
         val current = oList.minBy { it.f } ?: return finished(null)
         if (current.node == endNode) return finished(generatePath(current))
 
@@ -43,12 +43,24 @@ class AStarAlgorithm: BasicPathFinder<AStarAlgorithm.NodeInfo>() {
                     node.f = node.g + node.h
                     node.parent = current
 
-                    if(!oList.map { it.node }.contains(node.node)) {
+                    oList.find { it.node == node.node }?.let {existing ->
+                        if(existing.g > node.g) {
+                            existing.g = node.g
+                            existing.parent = current
+                        }
+                    } ?: let {
                         oList.add(node)
                     }
+
+//                    if (!oList.map { it.node }.contains(node.node)) {
+//                        oList.add(node)
+//                    } else {
+//                        val existing = oList.find { }
+//                        if ()
+//                    }
                 }
 
-        if(!stepped) {
+        if (!stepped) {
             Thread.sleep(stepTime.toLong())
             step()
         }
@@ -66,6 +78,6 @@ class AStarAlgorithm: BasicPathFinder<AStarAlgorithm.NodeInfo>() {
 
     //H is the heuristic — estimated distance from the current node to the end node.
     private fun h(node: Node, endNode: Node) =
-            Math.pow(node.bounds.location.toVector().distance(endNode.bounds.location.toVector()), 2.0)
+            node.bounds.location.toVector().distance(endNode.bounds.location.toVector())
 
 }
