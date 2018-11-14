@@ -44,25 +44,22 @@ class AStarAlgorithm : BasicPathFinder<AStarAlgorithm.NodeInfo>() {
                     node.parent = current
 
                     oList.find { it.node == node.node }?.let {existing ->
-                        if(existing.g > node.g) {
-                            existing.g = node.g
-                            existing.parent = current
-                        }
+                        relax(existing, node, current)
                     } ?: let {
                         oList.add(node)
                     }
-
-//                    if (!oList.map { it.node }.contains(node.node)) {
-//                        oList.add(node)
-//                    } else {
-//                        val existing = oList.find { }
-//                        if ()
-//                    }
                 }
 
         if (!stepped) {
             Thread.sleep(stepTime.toLong())
             step()
+        }
+    }
+
+    private fun relax(existing: NodeInfo, node: NodeInfo, current: NodeInfo) {
+        if (existing.g > node.g) {
+            existing.g = node.g
+            existing.parent = current
         }
     }
 
