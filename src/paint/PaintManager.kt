@@ -5,6 +5,7 @@ import data.*
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 import pathfinder.PathFinder
 import rotate
+import toPoint
 import toVector
 import java.awt.*
 import kotlin.math.roundToInt
@@ -12,25 +13,36 @@ import kotlin.math.roundToInt
 
 class PaintManager {
 
-    private class NodeBasicPaint(private val color: Color, private val testColor: Color, private val strokeWidth: Int): Paint<Node> {
+    private class NodeBasicPaint(private val color: Color, private val textColor: Color, private val strokeWidth: Int, private val printTexts: Boolean): Paint<Node> {
 
         override fun paint(element: Node, graphics2D: Graphics2D) {
             graphics2D.color = color
             graphics2D.stroke = BasicStroke(strokeWidth.toFloat())
             graphics2D.drawOval(element.bounds.x, element.bounds.y, element.bounds.width, element.bounds.height)
 
+
             val string = element.name
             val stringHeight = graphics2D.fontMetrics.height
             val stringWidth = graphics2D.fontMetrics.stringWidth(string)
 
-            graphics2D.color = testColor
+            graphics2D.color = textColor
             graphics2D.drawString(
                     string,
                     (element.bounds.x + element.bounds.width / 2) - stringWidth / 2 ,
                     element.bounds.y + (element.bounds.height - stringHeight)/2 + graphics2D.fontMetrics.ascent
             )
         }
-        override fun paintInfo(element: Node, graphics2D: Graphics2D) {}
+        override fun paintInfo(element: Node, graphics2D: Graphics2D) {
+            val infoDistance = 5.0
+
+            if(printTexts) {
+                val infoString = String.format("f:%.2f - g:%.2f - h:%.2f", element.h, element.g, element.h)
+                val infoStringWidth = graphics2D.fontMetrics.stringWidth(infoString).toDouble()
+                val textPosition = element.bounds.location.toVector().subtract(Vector2D((infoStringWidth/2) - element.bounds.width / 2, infoDistance))
+                graphics2D.color = color
+                graphics2D.drawString(infoString, textPosition.x.toInt(), textPosition.y.toInt())
+            }
+        }
     }
 
     private class NodeHighlightBorderPaint(private val color: Color, private val strokeSize: Int): Paint<Node> {
@@ -47,7 +59,7 @@ class PaintManager {
         override fun paintInfo(element: Node, graphics2D: Graphics2D) {}
     }
 
-    private class EdgeBasicPaint(private val color: Color, private val strokeWidth: Int): Paint<Edge> {
+    private class EdgeBasicPaint(private val color: Color, private val textColor: Color, private val strokeWidth: Int, private val printTexts: Boolean): Paint<Edge> {
         override fun paint(element: Edge, graphics2D: Graphics2D) {
 
 
@@ -83,37 +95,39 @@ class PaintManager {
                     arrow.size
             )
         }
-        override fun paintInfo(element: Edge, graphics2D: Graphics2D) {}
-
-    }
-
-    private class EdgeHandlePaint(private val color: Color, private val textColor: Color, private val paintText: Boolean = false): Paint<Edge> {
-        override fun paint(element: Edge, graphics2D: Graphics2D) {
-            graphics2D.color = color
-            graphics2D.fillOval(element.bounds.x, element.bounds.y, element.bounds.width, element.bounds.height)
-        }
         override fun paintInfo(element: Edge, graphics2D: Graphics2D) {
 
-            if (paintText) {
+            if (printTexts) {
                 val distance = element.getLength()
 
-                val string = "${element.name}: $distance"
+                val string = String.format("dis:%.2f", distance)
 
                 val stringHeight = graphics2D.fontMetrics.height
                 val stringWidth = graphics2D.fontMetrics.stringWidth(string)
 
-                val infoOffset = 10.0
-                val infoStart = element.bounds.location.toVector().add(Vector2D(0.0, 1.0).scalarMultiply(infoOffset))
+                val infoOffset = 20.0
+                val infoStart = element.bounds.location.toVector().subtract(Vector2D(stringWidth/2 + (stringHeight / 2.0), infoOffset))
                 val infoBounds = Rectangle(infoStart.x.roundToInt(), infoStart.y.roundToInt(), stringWidth + stringHeight, stringHeight)
 
+                graphics2D.color = color
                 graphics2D.fillOval(infoBounds.x, infoBounds.y, infoBounds.height, infoBounds.height)
                 graphics2D.fillOval(infoBounds.x + infoBounds.width, infoBounds.y, infoBounds.height, infoBounds.height)
-                graphics2D.fillRect(infoBounds.x + infoBounds.height / 2, infoBounds.y, infoBounds.width - infoBounds.height, infoBounds.height)
+                graphics2D.fillRect((infoBounds.x + infoBounds.height / 2.0).roundToInt(), infoBounds.y , infoBounds.width, infoBounds.height)
 
 
                 graphics2D.color = textColor
-                graphics2D.drawString(string, element.bounds.x + infoBounds.height / 2, element.bounds.y + (infoBounds.height - stringHeight)/2 + graphics2D.fontMetrics.ascent)
+                graphics2D.drawString(string, infoBounds.x + infoBounds.height, infoBounds.y+ graphics2D.fontMetrics.ascent)
             }
+        }
+
+    }
+
+    private class EdgeHandlePaint(private val color: Color): Paint<Edge> {
+        override fun paintInfo(element: Edge, graphics2D: Graphics2D) {}
+
+        override fun paint(element: Edge, graphics2D: Graphics2D) {
+            graphics2D.color = color
+            graphics2D.fillOval(element.bounds.x, element.bounds.y, element.bounds.width, element.bounds.height)
         }
     }
 
@@ -125,23 +139,6 @@ class PaintManager {
         override fun paintInfo(element: Node, graphics2D: Graphics2D) {}
     }
 
-    private val nodeDefaultPaint = NodeBasicPaint(Color.DARK_GRAY, Color.DARK_GRAY, 2)
-    private val nodeObstaclePaint = PaintCompositum(NodeHighlightBodyPaint(Color.BLACK), NodeBasicPaint(Color.BLACK, Color.WHITE, 2))
-    private val nodeBodyHighlightPaint = PaintCompositum(NodeHighlightBodyPaint(Color.LIGHT_GRAY), nodeDefaultPaint)
-    private val nodeBorderHighlightPaint = PaintCompositum(NodeHighlightBorderPaint(Color.GREEN, 4), nodeDefaultPaint)
-    private val startNodePaint = PaintCompositum(NodeHighlightBorderPaint(Color.BLUE, 4), nodeDefaultPaint)
-    private val endNodePaint = PaintCompositum(NodeHighlightBorderPaint(Color.GREEN, 4), nodeDefaultPaint)
-    private val openListNodePaint = PaintCompositum(NodeHighlightBodyPaint(Color.YELLOW), nodeDefaultPaint)
-    private val closedListNodePaint = PaintCompositum(NodeHighlightBodyPaint(Color.RED), nodeDefaultPaint)
-    private val pathNodePaint = PaintCompositum(NodeHighlightBodyPaint(Color.GREEN), nodeDefaultPaint)
-
-    private val edgeDefaultPaint = PaintCompositum(EdgeBasicPaint(Color.DARK_GRAY, 2), EdgeHandlePaint(Color.DARK_GRAY, Color.WHITE))
-    private val edgeHighlightPaint = PaintCompositum(EdgeBasicPaint(Color.GREEN, 2), EdgeHandlePaint(Color.GREEN, Color.WHITE, true))
-    private val openListEndgePaint = PaintCompositum(EdgeBasicPaint(Color.YELLOW, 2), EdgeHandlePaint(Color.YELLOW, Color.WHITE))
-    private val closedListEdgePaint = PaintCompositum(EdgeBasicPaint(Color.RED, 2), EdgeHandlePaint(Color.RED, Color.WHITE))
-    private val pathEdgePaint = PaintCompositum(EdgeBasicPaint(Color.GREEN, 2), EdgeHandlePaint(Color.GREEN, Color.WHITE))
-
-
     fun updateColors(
             pathFinder: PathFinder<*>?,
             graph: Graph?,
@@ -151,50 +148,51 @@ class PaintManager {
             hoveredEdge: Edge?,
             startNode: Node?,
             endNode: Node?,
-            mode: ToolBar.Mode
+            mode: ToolBar.Mode,
+            texts: Boolean = false
     ) {
 
         graph?.nodes?.forEach {
             it.paint = when (it.nodeType) {
-                NodeType.WALKABLE -> nodeDefaultPaint
-                else -> nodeObstaclePaint
+                NodeType.WALKABLE -> NodeBasicPaint(Color.DARK_GRAY, Color.DARK_GRAY, 2, texts)
+                else -> PaintCompositum(NodeHighlightBodyPaint(Color.BLACK), NodeBasicPaint(Color.BLACK, Color.WHITE, 2, texts))
             }
         }
-        graph?.edges?.forEach { it.paint = edgeDefaultPaint }
+        graph?.edges?.forEach { it.paint = PaintCompositum(EdgeBasicPaint(Color.DARK_GRAY, Color.WHITE, 2, texts), EdgeHandlePaint(Color.DARK_GRAY)) }
 
         when (mode) {
             ToolBar.Mode.RUN -> {
                 pathFinder?.getClosedList()?.forEach {
-                    it.node.paint = closedListNodePaint
-                    it.edge?.paint = closedListEdgePaint
+                    it.paint = PaintCompositum(NodeHighlightBodyPaint(Color.RED), NodeBasicPaint(Color.DARK_GRAY, Color.DARK_GRAY, 2, texts))
+                    it.comingEdge?.paint = PaintCompositum(EdgeBasicPaint(Color.RED, Color.WHITE, 2, texts), EdgeHandlePaint(Color.RED))
                 }
 
                 pathFinder?.getOpenList()?.forEach {
-                    it.node.paint = openListNodePaint
-                    it.edge?.paint = openListEndgePaint
+                    it.paint = PaintCompositum(NodeHighlightBodyPaint(Color.YELLOW), NodeBasicPaint(Color.DARK_GRAY, Color.DARK_GRAY, 2, texts))
+                    it.comingEdge?.paint = PaintCompositum(EdgeBasicPaint(Color.YELLOW, Color.BLACK, 2, texts), EdgeHandlePaint(Color.YELLOW))
                 }
 
                 pathFinder?.getPath()?.forEach {
-                    it.node.paint = pathNodePaint
-                    it.edge?.paint = pathEdgePaint
+                    it.paint = PaintCompositum(NodeHighlightBodyPaint(Color.GREEN), NodeBasicPaint(Color.DARK_GRAY, Color.DARK_GRAY, 2, texts))
+                    it.comingEdge?.paint = PaintCompositum(EdgeBasicPaint(Color.GREEN, Color.BLACK, 2, texts), EdgeHandlePaint(Color.GREEN))
                 }
-                startNode?.paint = startNodePaint
-                endNode?.paint = endNodePaint
+                startNode?.paint = PaintCompositum(NodeHighlightBorderPaint(Color.BLUE, 4), NodeBasicPaint(Color.DARK_GRAY, Color.DARK_GRAY, 2, texts))
+                endNode?.paint = PaintCompositum(NodeHighlightBorderPaint(Color.GREEN, 4), NodeBasicPaint(Color.DARK_GRAY, Color.DARK_GRAY, 2, texts))
             }
             ToolBar.Mode.NODE -> {
-                hoveredNode?.paint = nodeBodyHighlightPaint
+                hoveredNode?.paint = PaintCompositum(NodeHighlightBodyPaint(Color.LIGHT_GRAY), NodeBasicPaint(Color.DARK_GRAY, Color.DARK_GRAY, 2, texts))
             }
             ToolBar.Mode.EDGE -> {
-                hoveredNode?.paint = nodeBorderHighlightPaint
-                selectedNode?.paint = nodeBorderHighlightPaint
-                selectedEdge?.paint = edgeHighlightPaint
-                hoveredEdge?.paint = edgeHighlightPaint
+                hoveredNode?.paint = PaintCompositum(NodeHighlightBorderPaint(Color.GREEN, 4), NodeBasicPaint(Color.DARK_GRAY, Color.DARK_GRAY, 2, texts))
+                selectedNode?.paint = PaintCompositum(NodeHighlightBorderPaint(Color.GREEN, 4), NodeBasicPaint(Color.DARK_GRAY, Color.DARK_GRAY, 2, texts))
+                selectedEdge?.paint = PaintCompositum(EdgeBasicPaint(Color.GREEN, Color.BLACK, 2, texts), EdgeHandlePaint(Color.GREEN))
+                hoveredEdge?.paint = PaintCompositum(EdgeBasicPaint(Color.GREEN, Color.BLACK, 2, texts), EdgeHandlePaint(Color.GREEN))
             }
             ToolBar.Mode.MOVE -> {
-                hoveredNode?.paint = nodeBodyHighlightPaint
-                selectedNode?.paint = nodeBodyHighlightPaint
-                selectedEdge?.paint = edgeHighlightPaint
-                hoveredEdge?.paint = edgeHighlightPaint
+                hoveredNode?.paint = PaintCompositum(NodeHighlightBodyPaint(Color.LIGHT_GRAY), NodeBasicPaint(Color.DARK_GRAY, Color.DARK_GRAY, 2, texts))
+                selectedNode?.paint = PaintCompositum(NodeHighlightBodyPaint(Color.LIGHT_GRAY), NodeBasicPaint(Color.DARK_GRAY, Color.DARK_GRAY, 2, texts))
+                selectedEdge?.paint = PaintCompositum(EdgeBasicPaint(Color.GREEN, Color.BLACK, 2, texts), EdgeHandlePaint(Color.GREEN))
+                hoveredEdge?.paint = PaintCompositum(EdgeBasicPaint(Color.GREEN, Color.BLACK, 2, texts), EdgeHandlePaint(Color.GREEN))
             }
             else -> {
             }

@@ -6,7 +6,7 @@ import data.Node
 
 
 
-interface PathFinder<T> where T: NodePack {
+interface PathFinder<T> where T: Node {
     var stepListener: (() -> Unit)?
     fun start(graph: Graph, startNode: Node, endNode: Node, stepped: Boolean, stepTime: Int)
     fun step()

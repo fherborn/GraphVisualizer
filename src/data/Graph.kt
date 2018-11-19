@@ -34,13 +34,13 @@ class Graph(val nodes: MutableList<Node> = mutableListOf()): Drawable {
     }
 
     override fun paint(graphics2D: Graphics2D) {
-        nodes.reversed().forEach { it.paint(graphics2D) }
-        edges.reversed().forEach { it.paint(graphics2D) }
+        nodes.forEach { it.paint(graphics2D) }
+        edges.forEach { it.paint(graphics2D) }
     }
 
     override fun paintInfo(graphics2D: Graphics2D) {
-        nodes.reversed().forEach { it.paintInfo(graphics2D) }
-        edges.reversed().forEach { it.paintInfo(graphics2D) }
+        nodes.forEach { it.paintInfo(graphics2D) }
+        edges.forEach { it.paintInfo(graphics2D) }
     }
 
 }

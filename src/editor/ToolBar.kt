@@ -31,6 +31,7 @@ class ToolBar : JToolBar("Toolbar"), ItemListener {
     var stepListener: (() -> Unit)? = null
     var stopListener: (() -> Unit)? = null
     var clearListener: ((algo: Algo) -> Unit)? = null
+    var paintTextsListener: ((paint: Boolean) -> Unit)? = null
 
     private val runUi = createRunUI()
 
@@ -41,6 +42,7 @@ class ToolBar : JToolBar("Toolbar"), ItemListener {
     private var runModeButton = JRadioButton("Run")
     private var generateGraphButton = JButton("Generate Graph")
     private var resetGraphButton = JButton("Reset Graph")
+    private var paintTexts = JCheckBox("Paint Texts")
 
 
     init {
@@ -63,7 +65,7 @@ class ToolBar : JToolBar("Toolbar"), ItemListener {
 
         generateGraphButton.addActionListener { generateGraphListener?.invoke() }
         resetGraphButton.addActionListener { resetGraphListener?.invoke() }
-
+        paintTexts.addChangeListener { paintTextsListener?.invoke(paintTexts.isSelected) }
 
 
         add(nodeModeButton)
@@ -73,6 +75,7 @@ class ToolBar : JToolBar("Toolbar"), ItemListener {
         add(runModeButton)
         add(generateGraphButton)
         add(resetGraphButton)
+        add(paintTexts)
 
         nodeModeButton.isSelected = true
 

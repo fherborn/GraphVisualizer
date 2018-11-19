@@ -3,7 +3,7 @@ package pathfinder
 import data.Graph
 import data.Node
 
-abstract class BasicPathFinder<T>: PathFinder<T> where T: NodePack {
+abstract class BasicPathFinder<T>: PathFinder<T> where T: Node {
 
 
     override var stepListener: (() -> Unit)? = null

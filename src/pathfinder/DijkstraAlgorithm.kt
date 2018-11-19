@@ -2,7 +2,7 @@ import data.Node
 import data.NodeType
 import pathfinder.BasicPathFinder
 
-class AStarAlgorithm : BasicPathFinder<Node>() {
+class DijkstraAlgorithm : BasicPathFinder<Node>() {
 
     override fun onStart(startNode: Node, endNode: Node) {
         oList.add(startNode)
@@ -29,8 +29,7 @@ class AStarAlgorithm : BasicPathFinder<Node>() {
                     val node = edge.endNode
                     node.comingEdge = edge
                     node.g = current.g + edge.getLength()
-                    node.h = h(node, endNode)
-                    node.f = node.g + node.h
+                    node.f = node.g
                     node.parent = current
 
                     oList.find { it == node }?.let {existing ->
@@ -62,9 +61,5 @@ class AStarAlgorithm : BasicPathFinder<Node>() {
         }
         return path.reversed()
     }
-
-    //H is the heuristic — estimated distance from the current node to the end node.
-    private fun h(node: Node, endNode: Node) =
-            node.bounds.location.toVector().distance(endNode.bounds.location.toVector())
 
 }

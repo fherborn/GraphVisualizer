@@ -1,5 +1,6 @@
 package editor
 import AStarAlgorithm
+import DijkstraAlgorithm
 import data.*
 import editor.ToolBar.Mode.*
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
@@ -16,7 +17,7 @@ import javax.swing.JPanel
 import javax.swing.SwingUtilities
 
 
-class EditorPanel : JPanel(), MouseListener, MouseMotionListener {
+class  EditorPanel : JPanel(), MouseListener, MouseMotionListener {
 
     private val toolbar = ToolBar()
 
@@ -42,6 +43,8 @@ class EditorPanel : JPanel(), MouseListener, MouseMotionListener {
 
     private var pathFinderColorManager = PaintManager()
 
+    private var paintTexts = false
+
 
     init {
         layout = BorderLayout()
@@ -53,6 +56,10 @@ class EditorPanel : JPanel(), MouseListener, MouseMotionListener {
         toolbar.stepListener = { pathFinder?.step() }
         toolbar.stopListener = { pathFinder?.stop() }
         toolbar.clearListener = { resetAlgo(it) }
+        toolbar.paintTextsListener = {
+            paintTexts = it
+            update()
+        }
 
         add(toolbar, BorderLayout.NORTH)
 
@@ -74,7 +81,7 @@ class EditorPanel : JPanel(), MouseListener, MouseMotionListener {
     private fun resetAlgo(algo: ToolBar.Algo) {
         pathFinder?.stop()
         pathFinder = when (algo) {
-            ToolBar.Algo.DIJKSTRA -> null
+            ToolBar.Algo.DIJKSTRA -> DijkstraAlgorithm()
             ToolBar.Algo.ASTAR -> AStarAlgorithm()
         }
         update()
@@ -204,7 +211,8 @@ class EditorPanel : JPanel(), MouseListener, MouseMotionListener {
                 hoveredEdge,
                 startNode,
                 endNode,
-                mode
+                mode,
+                paintTexts
         )
         graph.paint(g2)
         graph.paintInfo(g2)

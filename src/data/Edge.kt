@@ -20,7 +20,7 @@ data class Edge(val startNode: Node, val endNode: Node, val name: String): Drawa
     }
 
     override fun paintInfo(graphics2D: Graphics2D) {
-        paint?.paint(this, graphics2D)
+        paint?.paintInfo(this, graphics2D)
     }
 
 
