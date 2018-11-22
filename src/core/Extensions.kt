@@ -1,3 +1,5 @@
+package core
+
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 import java.awt.Dimension
 import java.awt.Point

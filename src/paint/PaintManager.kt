@@ -4,9 +4,8 @@ import editor.ToolBar
 import data.*
 import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 import pathfinder.PathFinder
-import rotate
-import toPoint
-import toVector
+import core.rotate
+import core.toVector
 import java.awt.*
 import kotlin.math.roundToInt
 

@@ -1,3 +1,4 @@
+import core.toVector
 import data.Node
 import data.NodeType
 import pathfinder.BasicPathFinder

@@ -2,7 +2,7 @@ package data
 
 import paint.Drawable
 import paint.Paint
-import toVector
+import core.toVector
 import java.awt.Graphics2D
 import java.awt.Rectangle
 

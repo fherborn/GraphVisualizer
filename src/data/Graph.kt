@@ -1,9 +1,12 @@
 package data
 
+import org.apache.commons.math3.geometry.euclidean.twod.Vector2D
 import paint.Drawable
 import java.awt.Graphics2D
+import java.awt.Point
+import java.awt.Rectangle
 
-class Graph(val nodes: MutableList<Node> = mutableListOf()): Drawable {
+class Graph(val nodes: MutableList<Node> = mutableListOf()) : Drawable {
 
 
     val edges: MutableList<Edge> = mutableListOf()
@@ -41,6 +44,28 @@ class Graph(val nodes: MutableList<Node> = mutableListOf()): Drawable {
     override fun paintInfo(graphics2D: Graphics2D) {
         nodes.forEach { it.paintInfo(graphics2D) }
         edges.forEach { it.paintInfo(graphics2D) }
+    }
+
+    fun topLeft() = Point(
+            nodes.map { it.bounds.x }.min() ?: 0,
+            nodes.map { it.bounds.y }.min() ?: 0
+    )
+
+    fun bottomRight() = Point(
+            nodes.map { it.bounds.x + it.bounds.width }.max() ?: 0,
+            nodes.map { it.bounds.y + it.bounds.height }.max() ?: 0
+    )
+
+    fun graphRect(): Rectangle {
+        val topLeft = topLeft()
+        val bottomRight = bottomRight()
+
+        return Rectangle(
+                topLeft.x,
+                topLeft.y,
+                bottomRight.x - topLeft.x,
+                bottomRight.y - topLeft.y
+        )
     }
 
 }
