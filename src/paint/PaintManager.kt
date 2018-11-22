@@ -35,7 +35,7 @@ class PaintManager {
             val infoDistance = 5.0
 
             if(printTexts) {
-                val infoString = String.format("f:%.2f - g:%.2f - h:%.2f", element.h, element.g, element.h)
+                val infoString = String.format("f:%.2f - g:%.2f - h:%.2f", element.f, element.g, element.h)
                 val infoStringWidth = graphics2D.fontMetrics.stringWidth(infoString).toDouble()
                 val textPosition = element.bounds.location.toVector().subtract(Vector2D((infoStringWidth/2) - element.bounds.width / 2, infoDistance))
                 graphics2D.color = color
