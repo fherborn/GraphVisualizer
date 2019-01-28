@@ -33,6 +33,8 @@ class ToolBar : JToolBar("Toolbar"), ItemListener {
     var clearListener: ((algo: Algo) -> Unit)? = null
     var paintTextsListener: ((paint: Boolean) -> Unit)? = null
     var saveAsImageListener: (() -> Unit)? = null
+    var randomObstaclesListener: (() -> Unit)? = null
+    var removeAllObstaclesListener: (() -> Unit)? = null
 
     private val runUi = createRunUI()
 
@@ -45,6 +47,8 @@ class ToolBar : JToolBar("Toolbar"), ItemListener {
     private var resetGraphButton = JButton("Reset Graph")
     private var paintTexts = JCheckBox("Paint Texts")
     private var saveAsImage = JButton("Save as Image")
+    private var randomObstaclesButton = JButton("Random Obstacles")
+    private var removeAllObstaclesButton = JButton("Remove Obstacles")
 
 
     init {
@@ -69,6 +73,8 @@ class ToolBar : JToolBar("Toolbar"), ItemListener {
         resetGraphButton.addActionListener { resetGraphListener?.invoke() }
         paintTexts.addChangeListener { paintTextsListener?.invoke(paintTexts.isSelected) }
         saveAsImage.addActionListener { saveAsImageListener?.invoke() }
+        randomObstaclesButton.addActionListener { randomObstaclesListener?.invoke() }
+        removeAllObstaclesButton.addActionListener { removeAllObstaclesListener?.invoke() }
 
 
         add(nodeModeButton)
@@ -77,6 +83,8 @@ class ToolBar : JToolBar("Toolbar"), ItemListener {
         add(moveModeButton)
         add(runModeButton)
         add(generateGraphButton)
+        add(randomObstaclesButton)
+        add(removeAllObstaclesButton)
         add(resetGraphButton)
         add(paintTexts)
 

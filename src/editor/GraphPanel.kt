@@ -46,6 +46,7 @@ class  GraphPanel : JPanel(), MouseListener, MouseMotionListener {
     private var pathFinderColorManager = PaintManager()
 
     var paintTexts = false
+    val random = Random()
 
 
     init {
@@ -74,6 +75,25 @@ class  GraphPanel : JPanel(), MouseListener, MouseMotionListener {
         update()
     }
 
+
+    fun removeObstacles() {
+        graph.nodes.forEach {
+            it.nodeType = NodeType.WALKABLE
+        }
+        update()
+    }
+
+    fun randomObstacles(){
+
+        graph.nodes.forEach {
+            it.nodeType = when(random.nextInt(10)) {
+                in 0..4 -> NodeType.WALKABLE
+                else -> NodeType.OBSTACLE
+            }
+        }
+        update()
+    }
+
     fun generateGraph() {
         resetGraph()
         val nodeSize = Node.defaultSize
@@ -88,10 +108,10 @@ class  GraphPanel : JPanel(), MouseListener, MouseMotionListener {
             (0 until nodeCountY).map { y ->
                 val position = Vector2D(x * nodeSize.x + (x + 1) * offset, y * nodeSize.y + (y + 1) * offset + topSpace)
                 val node = Node(position, getNodeName())
-                node.nodeType = when(random.nextInt(10)) {
-                    in 0..7 -> NodeType.WALKABLE
-                    else -> NodeType.OBSTACLE
-                }
+//                node.nodeType = when(random.nextInt(10)) {
+//                    in 0..7 -> NodeType.WALKABLE
+//                    else -> NodeType.OBSTACLE
+//                }
                 graph.addNode(node)
                 node
 

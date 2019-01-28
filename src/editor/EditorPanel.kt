@@ -1,5 +1,4 @@
 package editor
-import core.MainFrame
 import java.awt.*
 import java.awt.image.BufferedImage
 import java.io.File
@@ -10,7 +9,7 @@ import javax.swing.SwingUtilities
 
 
 
-class  EditorPanel(val mainFrame: MainFrame) : JPanel() {
+class  EditorPanel : JPanel() {
 
     private val toolbar = ToolBar()
 
@@ -23,6 +22,8 @@ class  EditorPanel(val mainFrame: MainFrame) : JPanel() {
         toolbar.modeChangeListener = { graphPanel.mode = it }
         toolbar.resetGraphListener = { graphPanel.resetGraph() }
         toolbar.generateGraphListener = { graphPanel.generateGraph() }
+        toolbar.randomObstaclesListener = { graphPanel.randomObstacles() }
+        toolbar.removeAllObstaclesListener = { graphPanel.removeObstacles() }
         toolbar.startListener = { algo, stepped, stepTime -> graphPanel.startAlgo(algo, stepped, stepTime) }
         toolbar.stepListener = { graphPanel.pathFinder?.step() }
         toolbar.stopListener = { graphPanel.pathFinder?.stop() }
