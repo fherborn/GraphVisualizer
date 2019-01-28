@@ -1,4 +1,5 @@
 import core.toVector
+import data.Edge
 import data.Node
 import data.NodeType
 import pathfinder.BasicPathFinder
@@ -26,20 +27,7 @@ class AStarAlgorithm : BasicPathFinder<Node>() {
         current.edges
                 .filter { !cList.contains(it.endNode) }
                 .filter { it.endNode.nodeType == NodeType.WALKABLE }
-                .forEach { edge ->
-                    val node = edge.endNode
-                    node.comingEdge = edge
-                    node.g = current.g + edge.getLength()
-                    node.h = h(node, endNode)
-                    node.f = node.g + node.h
-                    node.parent = current
-
-                    oList.find { it == node }?.let {existing ->
-                        relax(existing, node, current)
-                    } ?: let {
-                        oList.add(node)
-                    }
-                }
+                .forEach { findNext(current, endNode, it) }
 
         if (!stepped) {
             Thread.sleep(stepTime.toLong())
@@ -47,11 +35,31 @@ class AStarAlgorithm : BasicPathFinder<Node>() {
         }
     }
 
-    private fun relax(existing: Node, node: Node, current: Node) {
-        if (existing.g > node.g) {
-            existing.g = node.g
-            existing.parent = current
+    private fun findNext(current: Node, endNode: Node, edge: Edge) {
+
+        val neighbour = edge.endNode
+        val g = current.g + edge.getLength()
+
+        if (oList.contains(neighbour)) {
+            if (g < neighbour.g) {
+                updateNode(neighbour, g, edge, current, endNode)
+            }
+        } else {
+            updateNode(neighbour, g, edge, current, endNode)
+            oList.add(neighbour)
         }
+    }
+
+    private fun updateNode(neighbour: Node, g: Double, comingEdge: Edge, current: Node, endNode: Node) {
+        relax(neighbour, g, endNode)
+        neighbour.comingEdge = comingEdge
+        neighbour.parent = current
+    }
+
+    private fun relax(neighbour: Node, g: Double, endNode: Node) {
+        neighbour.g = g
+        neighbour.h = h(neighbour, endNode)
+        neighbour.f = neighbour.g + neighbour.h
     }
 
     private fun generatePath(current: Node): List<Node> {
